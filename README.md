@@ -1,3 +1,5 @@
+Copy from https://github.com/yuntaeJ/SCIT-MCMT-Tracking.
+
 # [CVPRW2023] "Leveraging Future Trajectory Prediction for Multi-Camera People Tracking"
 
 [Track1: Multi-Camera People Tracking](https://www.aicitychallenge.org/2023-challenge-tracks/)
@@ -10,13 +12,15 @@ The official repository for [7th NVIDIA AI City Challenge](https://www.aicitycha
 
 ## Environment
 
-We run on 2 NVIDIA A6000 GPUs.
+It's possible to run CPU
 
 - Linux or macOS
 - Python 3.7+  (Python 3.8 in our envs)
-- PyTorch 1.9+ (1.11.0 in our envs)
-- CUDA 10.2+ (CUDA 11.3 in our envs)
+- PyTorch 1.9+ (1.12.0 in our envs)
 - mmcv-full==1.7.1 ([MMCV](https://mmcv.readthedocs.io/en/latest/#installation))
+- mmdet==2.28.1
+- mmengine==0.10.7
+- Cmake 4 (https://cmake.org/download/)
 
 ## Installation
 
