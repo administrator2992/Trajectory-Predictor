@@ -1,5 +1,5 @@
 # TODO: Update with exact module version
-numpy
+numpy=1.23.1
 opencv-python
 loguru
 scikit_image
