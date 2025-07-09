@@ -7,5 +7,8 @@ pip3 install cython; pip3 install 'git+https://github.com/cocodataset/cocoapi.gi
 
 # Step3. Others
 pip3 install cython_bbox
-pip3 install mmcv-full
+pip3 install mmcv-full==1.7.1
+pip3 install openmim
+mim install mmdet==2.28.1
+mim install mmengine==0.10.7
 pip3 install -v -e .
