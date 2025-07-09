@@ -35,7 +35,7 @@ def make_parser():
     parser.add_argument('homography_path', help='Homography file')
     parser.add_argument('pose_weight', help='Checkpoint file or ONNX model')
     parser.add_argument('--device', default='cuda:0', help='Device used for inference')
-    parser.add_argument('--save_txt_path', default='./MCMT_result', help='Path to save results')
+    parser.add_argument('--save_out_path', default='./MCMT_result', help='Path to save text results')
     return parser
 
 def load_SCMT_tracklet(gts, vid_width, vid_height):
@@ -313,6 +313,22 @@ def main(args):
 
     channel_track_result = load_SCMT_tracklet(gts, vid_width, vid_height)
     
+    # ======================================================================
+    # VIDEO WRITER INITIALIZATION (ADDED HERE)
+    # ======================================================================
+    video_writers = []
+    os.makedirs(args.save_out_path, exist_ok=True)
+    for idx, channel in enumerate(channel_list):
+        save_dir = osp.join(args.save_out_path, channel_list[idx])
+        output_video_path = osp.join(save_dir, f'{channel}_output.mp4')
+        fps = caps[idx].get(cv2.CAP_PROP_FPS)
+        width = int(caps[idx].get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(caps[idx].get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
+        video_writers.append(video_writer)
+    # ======================================================================
+    
     # Initialize tracking variables
     channel_id_mapping = [{} for _ in range(len(caps))]
     channel_id_position = [{} for _ in range(len(caps))]
@@ -328,6 +344,12 @@ def main(args):
             ret, frame_img = cap.read()
             if not ret:
                 continue
+            
+            # ======================================================================
+            # VISUALIZATION PREPARATION (ADDED HERE)
+            # ======================================================================
+            vis_img = frame_img.copy()
+            # ======================================================================
                 
             defined_track_id = []
             if frame_count in channel_track_result[idx]:
@@ -358,6 +380,28 @@ def main(args):
                 channel_track_id = np.array([bbox[-1] for bbox in track_bbox])
                 key_list = list(channel_id_mapping[idx].keys())
                 new_id_exist += check_dict_keys(channel_track_id, key_list, idx)
+            
+            # ======================================================================
+            # VISUALIZATION DRAWING (ADDED HERE)
+            # ======================================================================
+            if frame_count in channel_track_result[idx]:
+                for frame_bbox in track_bbox:
+                    x1, y1, x2, y2 = map(int, frame_bbox[:4])
+                    track_id = int(frame_bbox[5])
+                    global_id = channel_id_mapping[idx].get(track_id, -1)
+                    
+                    # Draw bounding box
+                    color = (0, 255, 0)  # Green
+                    cv2.rectangle(vis_img, (x1, y1), (x2, y2), color, 2)
+                    
+                    # Draw ID information
+                    id_text = f"L:{track_id} G:{global_id}"
+                    cv2.putText(vis_img, id_text, (x1, y1-10), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+            
+            # Write frame to video
+            video_writers[idx].write(vis_img)
+            # ======================================================================
             
         # Association and ID management
         if new_id_exist:
@@ -477,13 +521,20 @@ def main(args):
                 
         channel_final_output, channel_loss = offline_tracking(channel_loss, channel_id_mapping, channel_final_output) 
         t.update(1)
-        
-    # Release video captures
+    
+    # Release video captures and writers
     for cap in caps:
         cap.release()
+    
+    # ======================================================================
+    # RELEASE VIDEO WRITERS (ADDED HERE)
+    # ======================================================================
+    for writer in video_writers:
+        writer.release()
+    # ======================================================================
         
     # Save results
-    save_txt_result(channel_final_output, args.save_txt_path, channel_list)
+    save_txt_result(channel_final_output, args.save_out_path, channel_list)
 
 if __name__ == "__main__":
     args = make_parser().parse_args()

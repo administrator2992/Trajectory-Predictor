@@ -6,4 +6,4 @@ python3 tools/multicam_association.py \
 ./experiments/mcmt/homography_list.pkl \
 ./experiments/mcmt/yolov7-w6-pose.onnx \
 --device cpu \
---save_txt_path ./test-site022
+--save_out_path ./test-site022
