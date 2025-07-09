@@ -14,7 +14,7 @@ The official repository for [7th NVIDIA AI City Challenge](https://www.aicitycha
 
 It's possible to run CPU
 
-- Linux or macOS
+- Windows/Linux/macOS
 - Python 3.7+  (Python 3.8 in our envs)
 - PyTorch 1.9+ (1.12.0 in our envs)
 - mmcv-full==1.7.1 ([MMCV](https://mmcv.readthedocs.io/en/latest/#installation))
